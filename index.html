@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário RH - LearnWords</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #ffffff;
+            color: #1f2937;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 28px;
+            background: #ffffff;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 32px 0;
+        }
+
+        .header h1 {
+            font-size: 3.2rem;
+            font-weight: 900;
+            color: #000000;
+            margin-bottom: 16px;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        /* Seção de Eventos de Hoje - MELHORADA */
+        .today-events-section {
+            margin-bottom: 40px;
+            padding: 40px;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-radius: 20px;
+            border: 3px solid #1410f0;
+            box-shadow: 0 20px 40px rgba(20, 16, 240, 0.15);
+        }
+
+        .today-events-section.hidden {
+            display: none;
+        }
+
+        .today-events-title {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: #1410f0;
+            margin-bottom: 30px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .today-events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .today-event-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 18px;
+            padding: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .today-event-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+        }
+
+        .today-event-card-title {
+            font-size: 2.0rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+
+        .today-event-card-time {
+            font-size: 1.7rem;
+            color: #1410f0;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .today-event-card-category {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .today-event-card-description {
+            color: #4b5563;
+            font-size: 1.5rem;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .calendar-container {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 40px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-bottom: 1px solid #e2e8f0;
+            gap: 24px;
+        }
+
+        .nav-btn {
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #1410f0 0%, #0f0bb8 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1.5rem; /* ALTERADO */
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 16px rgba(20, 16, 240, 0.3);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(20, 16, 240, 0.4);
+        }
+
+        .month-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #1f2937;
+            text-transform: capitalize;
+            min-width: 280px;
+            text-align: center;
+        }
+
+        .calendar-controls {
+            padding: 24px 40px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .add-event-btn {
+            padding: 16px 28px;
+            background: linear-gradient(135deg, #1410f0 0%, #0f0bb8 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1.5rem; /* ALTERADO */
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 16px rgba(20, 16, 240, 0.3);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .add-event-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(20, 16, 240, 0.4);
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 220px;
+            padding: 14px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            font-size: 1.5rem; /* ALTERADO */
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #1410f0;
+            box-shadow: 0 0 0 3px rgba(20, 16, 240, 0.1);
+        }
+
+        .filter-select {
+            padding: 14px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            font-size: 1.5rem; /* ALTERADO */
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #1410f0;
+            box-shadow: 0 0 0 3px rgba(20, 16, 240, 0.1);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background: #ffffff;
+        }
+
+        .weekday {
+            padding: 24px 12px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: #374151;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .day-cell {
+            min-height: 160px;
+            padding: 8px;
+            border-right: 1px solid #f3f4f6;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: #ffffff;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .day-cell:hover {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            transform: scale(1.03);
+            z-index: 10;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .day-cell.other-month {
+            background: #f9fafb;
+            color: #9ca3af;
+        }
+
+        .day-cell.today {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 2px solid #1410f0;
+        }
+
+        .day-cell.selected {
+            background: linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%);
+            border: 2px solid #8b5cf6;
+        }
+
+        .day-number {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .day-cell.other-month .day-number {
+            color: #9ca3af;
+        }
+
+        .events-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .event-item {
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .event-item:hover {
+            transform: scale(1.06);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Cores padrão das categorias */
+        .event-evento { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+        .event-aniversario { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .event-evento-interno { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .event-data-comemorativa { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .event-reuniao { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+        .event-compromisso { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
+        .event-ferias { background: linear-gradient(135deg, #84cc16 0%, #65a30d 100%); }
+        .event-treinamento { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+
+        /* Sidebar */
+        .sidebar {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            position: sticky;
+            top: 28px;
+        }
+
+        .sidebar-header {
+            padding: 32px;
+            background: linear-gradient(135deg, #1410f0 0%, #0f0bb8 100%);
+            color: white;
+        }
+
+        .sidebar-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .sidebar-content {
+            max-height: 700px;
+            overflow-y: auto;
+            padding: 32px;
+        }
+
+        .events-section {
+            margin-bottom: 32px;
+        }
+
+        .events-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+
+        /* CATEGORIAS MELHORADAS - Separação mais clara */
+        .category-group {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 16px;
+            border: 2px solid #e5e7eb;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+            position: relative;
+        }
+
+        .category-group::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #000000 0%, #374151 100%);
+            border-radius: 16px;
+            z-index: -1;
+        }
+
+        .category-title {
+            font-size: 1.5rem; /* ALTERADO */
+            font-weight: 800; /* ALTERADO */
+            color: #ffffff;
+            margin-bottom: 20px;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #000000 0%, #374151 100%);
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 3px solid #1410f0;
+        }
+
+        .category-group:not(:last-child) {
+            border-bottom: 4px solid #000000;
+            margin-bottom: 50px;
+        }
+
+        .category-group:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #1410f0 0%, #0f0bb8 100%);
+            border-radius: 2px;
+        }
+
+        .upcoming-event {
+            padding: 20px;
+            margin-bottom: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 14px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .upcoming-event:hover {
+            transform: translateX(8px) translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #1410f0;
+        }
+
+        .upcoming-event-title {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .upcoming-event-date {
+            font-size: 1.1rem;
+            color: #6b7280;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .upcoming-event-category {
+            font-size: 1.1rem;
+            padding: 6px 12px;
+            border-radius: 8px;
+            color: white;
+            display: inline-block;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Modal - Layout Adaptativo */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            z-index: 999999;
+            backdrop-filter: blur(6px);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.hidden {
+            display: none;
+        }
+
+        @keyframes fadeInScaleUp {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 900px;
+            margin-top: 120px; 
+            max-height: calc(100vh - 160px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: fadeInScaleUp 0.3s ease-out forwards;
+        }
+
+        .modal-header {
+            padding: 32px;
+            background: linear-gradient(135deg, #1410f0 0%, #0f0bb8 100%);
+            color: white;
+            position: relative;
+            text-align: center;
+        }
+
+        .modal-title {
+            font-size: 3.5rem; /* ALTERADO */
+            font-weight: 800;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.4rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .modal-form {
+            padding: 32px;
+            flex: 1;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-content: start;
+        }
+        
+        /* NOVO: Estilos para o modo de visualização */
+        .modal-view-content {
+            padding: 32px;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            font-size: 1.6rem;
+        }
+        .view-header {
+            font-weight: 600;
+            color: #1410f0;
+            font-size: 1.8rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 16px;
+        }
+        .view-details {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .view-category-tag {
+            align-self: flex-start;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            color: white;
+        }
+        .view-description {
+            font-size: 1.5rem;
+            color: #4b5563;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 700;
+            font-size: 1.5rem; /* ALTERADO */
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1.4rem; /* ALTERADO */
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .form-select {
+            height: 50px; /* ALTERADO */
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #1410f0;
+            box-shadow: 0 0 0 3px rgba(20, 16, 240, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .color-picker-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .color-option {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .color-option.selected {
+            border-color: #1410f0;
+            transform: scale(1.15);
+        }
+
+        .color-option::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: 900;
+            font-size: 1.2rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .color-option.selected::after {
+            opacity: 1;
+        }
+
+        .form-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .view-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .view-actions .btn {
+            margin: 5px; /* ALTERADO */
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.5rem; /* ALTERADO */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1410f0 0%, #0f0bb8 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(20, 16, 240, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(20, 16, 240, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Notificações */
+        .notification {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            z-index: 1002;
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #1410f0 0%, #0f0bb8 100%);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        /* Responsivo - Mobile Vertical */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+            
+            .sidebar {
+                position: static;
+            }
+
+            .modal {
+                max-width: 500px;
+                margin-top: 120px;
+                max-height: calc(100vh - 160px);
+            }
+
+            .modal-header {
+                padding: 24px 32px;
+            }
+
+            .modal-title {
+                font-size: 2.2rem;
+            }
+
+            .modal-form, .modal-view-content {
+                display: block;
+                padding: 24px 32px;
+            }
+
+            .form-group, .view-field {
+                margin-bottom: 20px;
+            }
+
+            .color-picker-group {
+                grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+            }
+
+            .form-actions {
+                margin-top: 24px;
+                padding-top: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 8px;
+            }
+            
+            .main-content {
+                display: block;
+            }
+            
+            .calendar-container {
+                margin-bottom: 32px;
+            }
+
+            .header h1 {
+                font-size: 2.4rem;
+            }
+
+            .header p {
+                font-size: 1.1rem;
+            }
+
+            .today-events-section {
+                padding: 24px;
+                margin-bottom: 24px;
+            }
+
+            .today-events-title {
+                font-size: 2.2rem;
+            }
+
+            .today-event-card-title {
+                font-size: 1.8rem;
+            }
+
+            .today-event-card-time {
+                font-size: 1.4rem;
+            }
+
+            .today-event-card-category {
+                font-size: 1.2rem;
+            }
+
+            .today-event-card-description {
+                font-size: 1.3rem;
+            }
+
+            .calendar-header {
+                padding: 20px 16px;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 16px;
+            }
+
+            .month-title {
+                font-size: 2.2rem;
+                min-width: auto;
+                flex-grow: 1;
+            }
+
+            .nav-btn {
+                padding: 12px 20px;
+                font-size: 1.2rem;
+            }
+
+            .calendar-controls {
+                padding: 16px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .search-input, .filter-select {
+                min-width: auto;
+            }
+
+            .day-cell {
+                min-height: 120px;
+                padding: 8px 6px;
+            }
+
+            .day-number {
+                font-size: 1.3rem;
+            }
+
+            .event-item {
+                font-size: 1.0rem;
+                padding: 6px 8px;
+            }
+
+            .category-group {
+                margin-bottom: 35px;
+                padding: 16px;
+            }
+
+            .category-title {
+                font-size: 1.3rem;
+                padding: 12px 16px;
+            }
+
+            .modal {
+                margin: 10px;
+                width: calc(100% - 20px);
+                margin-top: 100px;
+                max-height: calc(100vh - 120px);
+            }
+
+            .modal-header {
+                padding: 20px 24px;
+            }
+
+            .modal-title {
+                font-size: 1.8rem;
+            }
+
+            .modal-form, .modal-view-content {
+                padding: 20px 24px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .color-picker-group {
+                grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
+            }
+
+            .color-option {
+                width: 45px;
+                height: 45px;
+            }
+
+            .sidebar-content {
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                font-size: 16px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .today-events-section {
+                padding: 20px;
+            }
+
+            .today-events-title {
+                font-size: 2rem;
+            }
+
+            .today-event-card-title {
+                font-size: 1.6rem;
+            }
+
+            .today-event-card-time {
+                font-size: 1.3rem;
+            }
+
+            .today-event-card-category {
+                font-size: 1.1rem;
+            }
+
+            .today-event-card-description {
+                font-size: 1.2rem;
+            }
+
+            .calendar-grid {
+                font-size: 0.9rem;
+            }
+
+            .day-cell {
+                min-height: 100px;
+                padding: 6px 4px;
+            }
+
+            .day-number {
+                font-size: 1.1rem;
+            }
+
+            .event-item {
+                font-size: 0.9rem;
+                padding: 4px 6px;
+            }
+
+            .weekday {
+                padding: 16px 8px;
+                font-size: 1.1rem;
+            }
+
+            .category-group {
+                margin-bottom: 30px;
+                padding: 12px;
+            }
+
+            .category-title {
+                font-size: 1.2rem;
+                padding: 10px 14px;
+            }
+
+            .modal {
+                margin-top: 80px;
+                max-height: calc(100vh - 100px);
+            }
+
+            .modal-header {
+                padding: 16px 20px;
+            }
+
+            .modal-title {
+                font-size: 1.6rem;
+            }
+
+            .modal-form, .modal-view-content {
+                padding: 16px 20px;
+            }
+
+            .color-option {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        @media (max-width: 768px) and (orientation: landscape) {
+            .modal {
+                margin-top: 20px;
+                max-height: calc(100vh - 40px);
+            }
+
+            .day-cell {
+                min-height: 120px;
+            }
+
+            .header {
+                padding: 16px 0;
+                margin-bottom: 24px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .today-events-title {
+                font-size: 1.8rem;
+            }
+
+            .modal-form {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+            }
+
+            .form-group.full-width {
+                grid-column: 1 / -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 Calendário RH</h1>
+            <p>Eventos e compromissos da equipe</p>
+        </div>
+
+        <!-- Seção de Eventos de Hoje -->
+        <div class="today-events-section hidden" id="todayEventsSection">
+            <h2 class="today-events-title" id="dynamicEventsTitle">Eventos de Hoje</h2>
+            <div class="today-events-grid" id="todayEventsGrid">
+                <!-- Eventos serão inseridos aqui -->
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button class="nav-btn" onclick="navigateMonth('prev')">←</button>
+                    <h2 class="month-title" id="monthTitle"></h2>
+                    <button class="nav-btn" onclick="navigateMonth('next')">→</button>
+                </div>
+
+                <div class="calendar-controls">
+                    <button class="add-event-btn" onclick="openModal()">+ Novo Evento</button>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Buscar eventos..." onkeyup="filterEvents()">
+                    <select class="filter-select" id="categoryFilter" onchange="filterEvents()">
+                        <option value="">Todas as categorias</option>
+                        <option value="evento">Evento</option>
+                        <option value="aniversario">Aniversário</option>
+                        <option value="evento-interno">Evento Interno</option>
+                        <option value="data-comemorativa">Data Comemorativa</option>
+                        <option value="reuniao">Reunião</option>
+                    </select>
+                </div>
+
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Cabeçalho dos dias da semana -->
+                    <div class="weekday">Dom</div>
+                    <div class="weekday">Seg</div>
+                    <div class="weekday">Ter</div>
+                    <div class="weekday">Qua</div>
+                    <div class="weekday">Qui</div>
+                    <div class="weekday">Sex</div>
+                    <div class="weekday">Sáb</div>
+                    <!-- Dias serão inseridos aqui -->
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h3 class="sidebar-title">Próximos Eventos</h3>
+                    <p class="sidebar-subtitle">Organizados por categoria</p>
+                </div>
+
+                <div class="sidebar-content">
+                    <div class="events-section">
+                        <div id="upcomingEventsList">
+                            <p style="text-align: center; color: #9ca3af; padding: 20px;">Nenhum evento próximo</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay hidden" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Novo Evento</h3>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            
+            <!-- NOVO: Container para o modo de visualização -->
+            <div class="modal-view-content" id="modalViewContent" style="display: none;">
+                <!-- Conteúdo dinâmico será injetado aqui pelo JS -->
+            </div>
+
+            <!-- Formulário para modo de edição -->
+            <form class="modal-form" id="modalForm" onsubmit="handleSubmit(event)">
+                <div class="form-group">
+                    <label class="form-label">Título do Evento *</label>
+                    <input type="text" class="form-input" id="eventTitle" placeholder="Ex: Reunião de equipe" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Data *</label>
+                    <input type="date" class="form-input" id="eventDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Horário</label>
+                    <input type="time" class="form-input" id="eventTime">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Categoria *</label>
+                    <select class="form-select" id="eventCategory" required>
+                        <option value="">Selecione uma categoria</option>
+                        <option value="evento">🎉 Evento</option>
+                        <option value="aniversario">🎂 Aniversário</option>
+                        <option value="evento-interno">🏢 Evento Interno</option>
+                        <option value="data-comemorativa">🎊 Data Comemorativa</option>
+                        <option value="reuniao">👥 Reunião</option>
+                    </select>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label">Cor do Evento</label>
+                    <div class="color-picker-group">
+                        <div class="color-option" data-color="#1410f0" style="background: linear-gradient(135deg, #1410f0 0%, #0f0bb8 100%);" onclick="selectColor('#1410f0')"></div>
+                        <div class="color-option" data-color="#10b981" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);" onclick="selectColor('#10b981')"></div>
+                        <div class="color-option" data-color="#ef4444" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);" onclick="selectColor('#ef4444')"></div>
+                        <div class="color-option" data-color="#f59e0b" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);" onclick="selectColor('#f59e0b')"></div>
+                        <div class="color-option" data-color="#8b5cf6" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);" onclick="selectColor('#8b5cf6')"></div>
+                        <div class="color-option" data-color="#06b6d4" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);" onclick="selectColor('#06b6d4')"></div>
+                        <div class="color-option" data-color="#84cc16" style="background: linear-gradient(135deg, #84cc16 0%, #65a30d 100%);" onclick="selectColor('#84cc16')"></div>
+                        <div class="color-option" data-color="#f97316" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);" onclick="selectColor('#f97316')"></div>
+                        <div class="color-option" data-color="#ec4899" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);" onclick="selectColor('#ec4899')"></div>
+                        <div class="color-option" data-color="#6366f1" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);" onclick="selectColor('#6366f1')"></div>
+                        <div class="color-option" data-color="#14b8a6" style="background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);" onclick="selectColor('#14b8a6')"></div>
+                        <div class="color-option" data-color="#000000" style="background: linear-gradient(135deg, #000000 0%, #374151 100%);" onclick="selectColor('#000000')"></div>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label">Descrição</label>
+                    <textarea class="form-textarea" id="eventDescription" placeholder="Adicione detalhes sobre o evento..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="deleteBtn" onclick="openDeleteConfirmModal()" style="display: none;">Excluir</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">Criar Evento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- NOVO: Modal de Confirmação de Exclusão -->
+    <div class="modal-overlay hidden" id="confirmDeleteModalOverlay">
+        <div class="modal" style="max-width: 500px; margin-top: 20vh;">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirmar Exclusão</h3>
+            </div>
+            <div class="modal-view-content">
+                <p style="font-size: 2.0rem; text-align: center;">Tem certeza que deseja excluir este evento? Esta ação não pode ser desfeita.</p>
+                <div class="view-actions" style="justify-content: center;">
+                    <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Excluir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        
+        // --- LÓGICA DE USUÁRIO ---
+        // A variável `sessaoAtual` será preenchida com o email do usuário logado.
+        // Para testar como admin, substitua a linha abaixo por:
+        // let sessaoAtual = { getSetor: () => "RH" };
+        let sessaoAtual = "{{user.email}}";
+      
+
+        class Colaborador{
+            #id; #nome; #funcao; #email; #isLider; #tag; #setor; #feedback; #notaMedia; #notaMediaAntiga; #numAvaliacoesRecebidas; #numAvaliacoes; #notaTotal;
+            constructor(id, nome, email, funcao, setor, notaTotal, numAvaliacoesRecebidas, numAvaliacoes, notaMediaAntiga, tag , isLider=false){
+                this.#id = id; this.#nome = nome; this.#email = email; this.#funcao = funcao; this.#isLider = isLider; this.#notaTotal = notaTotal; this.#setor = setor; this.#numAvaliacoesRecebidas = numAvaliacoesRecebidas; this.#notaMedia = notaTotal / numAvaliacoesRecebidas; this.#numAvaliacoes = numAvaliacoes; this.#notaMediaAntiga = notaMediaAntiga; this.#tag = tag;
+            }
+            diminuirAvaliações(){ this.#numAvaliacoes = this.#numAvaliacoes -1; }
+            aumentarAvaliaçõesRecebidas(){ this.#numAvaliacoesRecebidas += 1; }
+            aumentarNotaTotal(num){ this.#notaTotal += num; }
+            getId(){ return this.#id }
+            getNome(){ let nome = this.#nome; return nome; }
+            getNumAvaliacoes(){ return this.#numAvaliacoes; }
+            setId(id){ this.#id = id; }
+            setFeedback(feedback){ this.#feedback = feedback; }
+            setMedia(){ this.#notaMedia = this.#notaTotal / this.#numAvaliacoesRecebidas; }
+            setNumAvaliacoes(numAvaliacoes){ this.#numAvaliacoes = numAvaliacoes; }
+            setEmail(email){ this.#email = email; }
+            setNotaAntiga(){ this.#notaMediaAntiga = this.#notaTotal; }
+            getNotaAntiga(){ return this.#notaMediaAntiga; }
+            getMedia(){ this.setMedia(); return this.#notaMedia; }
+            getIsLider(){ return this.#isLider; }
+            getSetor(){ return this.#setor; }
+            getEmail(){ return this.#email; }
+            getNumAvaliacoesRecebidas(){ return this.#numAvaliacoesRecebidas; }
+            getNotaTotal(){ return this.#notaTotal; }
+            getFuncao(){ return this.#funcao; }
+            getTag(){ return this.#tag; }
+        }
+
+        async function buscarUsuario() {
+            // Se `sessaoAtual` for um objeto (para teste), não busca no banco.
+            if (typeof sessaoAtual === 'object' && sessaoAtual !== null) {
+                return;
+            }
+            const { data, error } = await supabase
+                .from('pessoas')
+                .select('*')
+                .like('email', sessaoAtual);
+
+            if (error) {
+                console.error('Erro:', error);
+            } else if (data && data.length > 0) {
+                const linha = data[0];
+                sessaoAtual = new Colaborador(linha.id, linha.nome, linha.email, linha.funcao, linha.setor, linha.notaTotal, linha.numAvaliacoesRecebidas, linha.numavaliacoes, linha.getNotaTotalAntiga, linha.tag, linha.islider)
+            } else {
+                // Define um usuário padrão caso não encontre no banco
+                sessaoAtual = { getSetor: () => 'Visitante' };
+            }
+        }
+
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.navigateMonth = navigateMonth;
+        window.filterEvents = filterEvents;
+        window.editEvent = editEvent;
+        window.openDeleteConfirmModal = openDeleteConfirmModal;
+        window.handleSubmit = handleSubmit;
+        window.selectColor = selectColor;
+
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+        const supabaseUrl = 'https://fxlygqcrfciegqmodmav.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4bHlncWNyZmNpZWdxbW9kbWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3MDk4NzYsImV4cCI6MjA2NjI4NTg3Nn0.o30PBOx-b2WlhDePjOLjP3A-0eVeHnGpGLGGgC8kAJM';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+
+        // Estado global
+        let currentDate = new Date();
+        let events = [];
+        let selectedDate = null;
+        let editingEvent = null;
+        let selectedColor = null;
+        let filteredEvents = [];
+        let modalForm, modalViewContent, confirmDeleteModal;
+
+        // Configurações das categorias
+        const categoryConfig = {
+            'evento': { label: '🎉 Evento', color: '#3b82f6' },
+            'aniversario': { label: '🎂 Aniversário', color: '#f59e0b' },
+            'evento-interno': { label: '🏢 Evento Interno', color: '#10b981' },
+            'data-comemorativa': { label: '🎊 Data Comemorativa', color: '#ef4444' },
+            'reuniao': { label: '👥 Reunião', color: '#8b5cf6' },
+        };
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', async function() {
+            modalForm = document.getElementById('modalForm');
+            modalViewContent = document.getElementById('modalViewContent');
+            confirmDeleteModal = document.getElementById('confirmDeleteModalOverlay');
+            
+            await buscarUsuario();
+            await loadEventsFromSupabase();
+            renderCalendar();
+            updateTodayEvents();
+            updateUpcomingEvents();
+
+            // Listeners para o modal de confirmação
+            document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
+            document.getElementById('cancelDeleteBtn').addEventListener('click', () => confirmDeleteModal.classList.add('hidden'));
+            confirmDeleteModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    confirmDeleteModal.classList.add('hidden');
+                }
+            });
+        });
+
+        async function loadEventsFromSupabase() {
+            const { data, error } = await supabase.from('eventos').select('*');
+            if (error) {
+                console.error('Erro ao buscar eventos:', error);
+                return;
+            }
+            events = data;
+            filteredEvents = [...events];
+        }
+
+        // Abrir modal (agora com modo de edição/visualização)
+        function openModal(event = null) {
+            const modal = document.getElementById('modalOverlay');
+            const title = document.getElementById('modalTitle');
+            const isAdmin = sessaoAtual.getSetor() === "RH" || sessaoAtual.getSetor() === "Comunicação" || sessaoAtual.getSetor() === "CEO";
+
+            if (event) { // Visualizando ou Editando um evento existente
+                editingEvent = event;
+                title.textContent = event.title;
+
+                if (isAdmin) {
+                    modalViewContent.style.display = 'none';
+                    modalForm.style.display = 'grid';
+                    
+                    document.getElementById('eventTitle').value = event.title;
+                    document.getElementById('eventDate').value = event.date;
+                    document.getElementById('eventTime').value = event.time || '';
+                    document.getElementById('eventCategory').value = event.category;
+                    document.getElementById('eventDescription').value = event.description || '';
+                    document.getElementById('deleteBtn').style.display = 'inline-block';
+                    document.getElementById('submitBtn').textContent = 'Salvar Alterações';
+                    
+                    document.querySelectorAll('.color-option').forEach(option => option.classList.remove('selected'));
+                    if (event.customColor) {
+                        selectColor(event.customColor);
+                    } else {
+                        selectedColor = null;
+                    }
+                } else {
+                    modalForm.style.display = 'none';
+                    modalViewContent.style.display = 'flex';
+                    
+                    // Lógica para texto dinâmico
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const eventDate = new Date(event.date + 'T00:00:00');
+                    eventDate.setHours(0, 0, 0, 0);
+                    
+                    const dayDiff = (eventDate - today) / (1000 * 60 * 60 * 24);
+
+                    let dateText = '';
+                    if (event.category === 'aniversario') {
+                        if (dayDiff === 0) dateText = `O aniversário de ${event.title} é hoje! 🎉`;
+                        else if (dayDiff === 1) dateText = `O aniversário de ${event.title} é amanhã!`;
+                        else dateText = `Aniversário de ${event.title}`;
+                    } else {
+                        if (dayDiff === 0) dateText = `É hoje${event.time ? ` às ${event.time}` : ''}!`;
+                        else if (dayDiff === 1) dateText = `É amanhã${event.time ? ` às ${event.time}` : ''}!`;
+                        else {
+                            const formattedDate = new Date(event.date + 'T00:00:00-03:00').toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+                            dateText = `Acontece em ${formattedDate}${event.time ? ` às ${event.time}` : ''}.`;
+                        }
+                    }
+
+                    const categoryInfo = categoryConfig[event.category];
+                    const eventColor = event.customColor || categoryInfo?.color || '#6b7280';
+                    const categoryTagStyle = `background: linear-gradient(135deg, ${eventColor} 0%, ${darkenColor(eventColor, 20)} 100%);`;
+
+                    modalViewContent.innerHTML = `
+                        <div class="view-header">${dateText}</div>
+                        <div class="view-details">
+                            <span class="view-category-tag" style="${categoryTagStyle}">${categoryInfo?.label || event.category}</span>
+                            <p class="view-description">${event.description || 'Nenhuma descrição fornecida.'}</p>
+                        </div>
+                        <div class="view-actions">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">Fechar</button>
+                        </div>
+                    `;
+                }
+            } else { // Criando um novo evento
+                if (!isAdmin) {
+                    showNotification('Você não tem permissão para criar eventos.', 'error');
+                    return;
+                }
+                
+                editingEvent = null;
+                title.textContent = 'Novo Evento';
+                modalViewContent.style.display = 'none';
+                modalForm.style.display = 'grid';
+                modalForm.reset();
+                document.getElementById('eventDate').value = selectedDate ? formatDate(selectedDate) : '';
+                document.querySelectorAll('.color-option').forEach(option => option.classList.remove('selected'));
+                selectedColor = null;
+                document.getElementById('deleteBtn').style.display = 'none';
+                document.getElementById('submitBtn').textContent = 'Criar Evento';
+            }
+            modal.classList.remove('hidden');
+        }
+        
+        function selectColor(color) {
+            selectedColor = color;
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            const selectedOption = document.querySelector(`[data-color="${color}"]`);
+            if (selectedOption) {
+                selectedOption.classList.add('selected');
+            }
+        }
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            document.getElementById('monthTitle').textContent = currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+            const calendarGrid = document.getElementById('calendarGrid');
+            const dayElements = calendarGrid.querySelectorAll('.day-cell');
+            dayElements.forEach(el => el.remove());
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay();
+
+            for (let i = 0; i < startingDayOfWeek; i++) {
+                createDayCell(new Date(year, month, i - startingDayOfWeek + 1), true);
+            }
+            for (let day = 1; day <= daysInMonth; day++) {
+                createDayCell(new Date(year, month, day), false);
+            }
+            const totalCells = calendarGrid.children.length - 7;
+            const remainingCells = 42 - totalCells;
+            for (let day = 1; day <= remainingCells; day++) {
+                createDayCell(new Date(year, month + 1, day), true);
+            }
+            updateTodayEvents();
+            updateUpcomingEvents();
+        }
+
+        function createDayCell(date, isOtherMonth) {
+            const dayCell = document.createElement('div');
+            dayCell.className = 'day-cell';
+            if (isOtherMonth) dayCell.classList.add('other-month');
+            if (date.toDateString() === new Date().toDateString()) dayCell.classList.add('today');
+
+            const dayNumber = document.createElement('span');
+            dayNumber.className = 'day-number';
+            dayNumber.textContent = date.getDate();
+            dayCell.appendChild(dayNumber);
+
+            const eventsContainer = document.createElement('div');
+            eventsContainer.className = 'events-container';
+            const dayEvents = getEventsForDate(date, filteredEvents);
+            dayEvents.forEach(event => {
+                const eventElement = document.createElement('div');
+                eventElement.className = `event-item`;
+                eventElement.setAttribute('data-event-id', event.id);
+                if (event.customColor) {
+                    eventElement.style.background = `linear-gradient(135deg, ${event.customColor} 0%, ${darkenColor(event.customColor, 20)} 100%)`;
+                } else {
+                    eventElement.classList.add(`event-${event.category}`);
+                }
+                eventElement.textContent = event.title;
+                eventElement.onclick = (e) => {
+                    e.stopPropagation();
+                    editEvent(event);
+                };
+                eventsContainer.appendChild(eventElement);
+            });
+            dayCell.appendChild(eventsContainer);
+            dayCell.onclick = () => {
+                selectedDate = date;
+                openModal();
+            };
+            document.getElementById('calendarGrid').appendChild(dayCell);
+        }
+
+        function darkenColor(color, percent) {
+            const num = parseInt(color.replace("#", ""), 16), amt = Math.round(2.55 * percent);
+            const R = (num >> 16) - amt, G = (num >> 8 & 0x00FF) - amt, B = (num & 0x0000FF) - amt;
+            return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
+        }
+
+        function getEventsForDate(date, eventsList = events) {
+            return eventsList.filter(event => event.date === formatDate(date));
+        }
+
+        function navigateMonth(direction) {
+            currentDate.setMonth(currentDate.getMonth() + (direction === 'prev' ? -1 : 1));
+            renderCalendar();
+        }
+
+        function filterEvents() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            filteredEvents = events.filter(event => {
+                const matchesSearch = !searchTerm || event.title.toLowerCase().includes(searchTerm) || (event.description && event.description.toLowerCase().includes(searchTerm));
+                const matchesCategory = !categoryFilter || event.category === categoryFilter;
+                return matchesSearch && matchesCategory;
+            });
+            renderCalendar();
+        }
+
+        function updateTodayEvents() {
+            const section = document.getElementById('todayEventsSection');
+            const grid = document.getElementById('todayEventsGrid');
+            const titleElement = document.getElementById('dynamicEventsTitle');
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let eventsToShow = getEventsForDate(today);
+            let titleText = "Eventos de Hoje";
+
+            if (eventsToShow.length === 0) {
+                const tomorrow = new Date(today);
+                tomorrow.setDate(today.getDate() + 1);
+                eventsToShow = getEventsForDate(tomorrow);
+                titleText = "Eventos de Amanhã";
+            }
+            
+            if (eventsToShow.length === 0) {
+                const dayAfter = new Date(today);
+                dayAfter.setDate(today.getDate() + 2);
+                eventsToShow = getEventsForDate(dayAfter);
+                titleText = `Eventos de ${dayAfter.toLocaleDateString('pt-BR', { weekday: 'long' })}`;
+            }
+
+            if (eventsToShow.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+            titleElement.textContent = titleText;
+            
+            grid.innerHTML = eventsToShow.map(event => {
+                const categoryClass = event.customColor ? '' : `event-${event.category}`;
+                const categoryStyle = event.customColor ? `style="background: linear-gradient(135deg, ${event.customColor} 0%, ${darkenColor(event.customColor, 20)} 100%);"` : '';
+                return `
+                    <div class="today-event-card" onclick="editEvent(${JSON.stringify(event).replace(/"/g, '&quot;')})">
+                        <div class="today-event-card-title">${event.title}</div>
+                        ${event.time ? `<div class="today-event-card-time">🕐 ${event.time}</div>` : ''}
+                        <span class="today-event-card-category ${categoryClass}" ${categoryStyle}>${categoryConfig[event.category]?.label || event.category}</span>
+                        ${event.description ? `<div class="today-event-card-description">${event.description}</div>` : ''}
+                    </div>`;
+            }).join('');
+        }
+
+        function updateUpcomingEvents() {
+            const today = new Date();
+            const upcomingEvents = events.filter(event => new Date(event.date) >= today).sort((a, b) => new Date(a.date) - new Date(b.date));
+            const container = document.getElementById('upcomingEventsList');
+            if (upcomingEvents.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #9ca3af; padding: 20px;">Nenhum evento próximo</p>';
+                return;
+            }
+            const eventsByCategory = upcomingEvents.reduce((acc, event) => {
+                (acc[event.category] = acc[event.category] || []).push(event);
+                return acc;
+            }, {});
+            const sortedCategories = Object.keys(eventsByCategory).sort((a, b) => new Date(eventsByCategory[a][0].date) - new Date(eventsByCategory[b][0].date));
+            container.innerHTML = sortedCategories.map(category => {
+                const categoryEvents = eventsByCategory[category];
+                const categoryInfo = categoryConfig[category];
+                return `
+                    <div class="category-group">
+                        <div class="category-title">${categoryInfo?.label || category}</div>
+                        ${categoryEvents.map(event => {
+                            const eventDate = new Date(event.date);
+                            const formattedDate = eventDate.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', weekday: 'short' });
+                            const categoryClass = event.customColor ? '' : `event-${event.category}`;
+                            const categoryStyle = event.customColor ? `style="background: linear-gradient(135deg, ${event.customColor} 0%, ${darkenColor(event.customColor, 20)} 100%);"` : '';
+                            return `
+                                <div class="upcoming-event" onclick="editEvent(${JSON.stringify(event).replace(/"/g, '&quot;')})">
+                                    <div class="upcoming-event-title">${event.title}</div>
+                                    <div class="upcoming-event-date">${formattedDate}${event.time ? ` às ${event.time}` : ''}</div>
+                                    <span class="upcoming-event-category ${categoryClass}" ${categoryStyle}>${categoryInfo?.label || event.category}</span>
+                                </div>`;
+                        }).join('')}
+                    </div>`;
+            }).join('');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.add('hidden');
+            editingEvent = null;
+            selectedDate = null;
+            selectedColor = null;
+        }
+
+        function editEvent(event) {
+            openModal(event);
+        }
+
+        function openDeleteConfirmModal() {
+            if (!editingEvent) return;
+            confirmDeleteModal.classList.remove('hidden');
+        }
+
+        async function confirmDelete() {
+            if (!editingEvent) return;
+            const { error } = await supabase.from('eventos').delete().eq('id', editingEvent.id);
+            
+            confirmDeleteModal.classList.add('hidden'); // Esconde o modal de confirmação
+
+            if(error) {
+                showNotification('Falha ao excluir evento.', 'error');
+                return;
+            }
+            
+            await loadEventsFromSupabase();
+            renderCalendar();
+            closeModal(); // Fecha o modal de edição principal
+            showNotification('Evento excluído com sucesso!', 'success');
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+            const payload = {
+                title: document.getElementById('eventTitle').value.trim(),
+                date: document.getElementById('eventDate').value,
+                time: document.getElementById('eventTime').value || null,
+                category: document.getElementById('eventCategory').value,
+                description: document.getElementById('eventDescription').value.trim() || null,
+                customColor: selectedColor || null,
+                updatedAt: new Date().toISOString()
+            };
+            if (!payload.title || !payload.date || !payload.category) {
+                showNotification('Por favor, preencha todos os campos obrigatórios.', 'error');
+                return;
+            }
+            let result;
+            if (editingEvent) {
+                result = await supabase.from('eventos').update(payload).eq('id', editingEvent.id);
+            } else {
+                payload.createdAt = new Date().toISOString();
+                result = await supabase.from('eventos').insert([payload]);
+            }
+            if (result.error) {
+                showNotification(`Falha ao ${editingEvent ? 'atualizar' : 'criar'} evento.`, 'error');
+                return;
+            }
+            showNotification(`Evento ${editingEvent ? 'atualizado' : 'criado'} com sucesso!`, 'success');
+            await loadEventsFromSupabase();
+            filterEvents();
+            closeModal();
+        }
+
+        function formatDate(date) { return date.toISOString().split('T')[0]; }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.classList.add('show'), 100);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => document.body.removeChild(notification), 300);
+            }, 3000);
+        }
+
+        // Navegação por teclado
+        document.addEventListener('keydown', function(e) {
+            const modalVisible = !document.getElementById('modalOverlay').classList.contains('hidden');
+            const confirmModalVisible = !document.getElementById('confirmDeleteModalOverlay').classList.contains('hidden');
+
+            if (e.key === 'Escape') {
+                if (confirmModalVisible) {
+                    document.getElementById('confirmDeleteModalOverlay').classList.add('hidden');
+                } else if (modalVisible) {
+                    closeModal();
+                }
+            } else if (!modalVisible && !confirmModalVisible) {
+                if (e.key === 'ArrowLeft') {
+                    navigateMonth('prev');
+                } else if (e.key === 'ArrowRight') {
+                    navigateMonth('next');
+                } else if (e.ctrlKey && e.key === 'n') {
+                    e.preventDefault();
+                    openModal();
+                }
+            }
+        });
+
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
